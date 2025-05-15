@@ -57,7 +57,6 @@ $result = $stmt->get_result();
 
     <h4>Your Blog Posts</h4>
 
-    <!-- Step 3: Show user's posts or a message if none exist -->
     <?php if ($result->num_rows > 0): ?>
         <?php while ($row = $result->fetch_assoc()): ?>
             <div class="post-card">
@@ -65,7 +64,7 @@ $result = $stmt->get_result();
                 <small class="text-muted">Posted on: <?php echo $row['created_at']; ?></small>
                 <p class="mt-2"><?php echo htmlspecialchars(substr($row['content'], 0, 120)); ?>...</p>
                 <a href="edit_post.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm">Edit</a>
-                <a href="delete_post.php?id=<?php echo $row['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</a>
+                <a href="delete_post.php?id=<?php echo $row['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
             </div>
         <?php endwhile; ?>
     <?php else: ?>

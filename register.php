@@ -1,26 +1,55 @@
 <?php
-// Step 1: Connect to the DB
+// Step 1: Connect to the database
 require_once 'connection.php';
 
-// Step 2: Handle form submission
+// Step 2: Enable strict error mode to catch exceptions
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+// Step 3: Initialize message variable
+$message = '';
+
+// Step 4: Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
+    // Step 5: Sanitize and receive input
+    $username = trim($_POST['username']);
     $password = $_POST['password'];
 
-    // Step 3: Hash the password securely
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    // Step 6: Define password strength pattern
+    $passwordPattern = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/';
 
-    // Step 4: Insert the new user into the database
-    $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-    $stmt->bind_param("ss", $username, $hashedPassword);
-
-    if ($stmt->execute()) {
-        $message = "<div class='alert alert-success text-center'>Registration successful. <a href='login.php'>Login here</a></div>";
+    // Step 7: Validate password strength
+    if (!preg_match($passwordPattern, $password)) {
+        $message = "<div class='alert alert-warning text-center'>
+            Password must be at least 8 characters long and include an uppercase letter, lowercase letter, number, and special character.
+        </div>";
     } else {
-        $message = "<div class='alert alert-danger text-center'>Error: " . $stmt->error . "</div>";
-    }
+        // Step 8: Hash password securely
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    $stmt->close();
+        try {
+            // Step 9: Prepare and execute insert statement
+            $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+            $stmt->bind_param("ss", $username, $hashedPassword);
+            $stmt->execute();
+
+            $message = "<div class='alert alert-success text-center'>
+                Registration successful. <a href='login.php'>Login here</a>
+            </div>";
+            $stmt->close();
+
+        } catch (mysqli_sql_exception $e) {
+            // Step 10: Handle duplicate username error (code 1062)
+            if ($e->getCode() === 1062) {
+                $message = "<div class='alert alert-danger text-center'>
+                    Username already exists. Please choose another one.
+                </div>";
+            } else {
+                $message = "<div class='alert alert-danger text-center'>
+                    Error: " . htmlspecialchars($e->getMessage()) . "
+                </div>";
+            }
+        }
+    }
 }
 ?>
 
@@ -31,7 +60,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Registration</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
     <style>
         body {
             background: linear-gradient(to right, #f8fdff, #e0f7fa);
@@ -60,6 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 
+<!-- Step 11: Display the form and messages -->
 <div class="container register-container">
     <?php if (!empty($message)) echo $message; ?>
 

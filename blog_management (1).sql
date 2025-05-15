@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 14, 2025 at 07:25 PM
+-- Generation Time: May 15, 2025 at 08:48 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -70,15 +70,13 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `username`, `password`) VALUES
 (1, 'Raneem Al Zarif', '$2y$10$MFI44uqIY..VIvJHU/s15eL44FjhwWj1nffFScYAes4ou0/FEtpge'),
 (2, 'rama', '$2y$10$4yHHl9iWOQlIjQbNzrF2juv5ceZPfiAJfmJvS62kpek/n7m0NkLKW'),
-(3, 'Raneem Al Zarif', '$2y$10$TnDzLEEY/kkBbHvDI44Nwudh7PfqYmAk7Pn69w3dnThRYWth2QrPa'),
-(4, 'Raneem Al Zarif', '$2y$10$OH3to3NAyjImNOq8GHYgL.bJOOe/an1BfGPLy8doRnEwxXcIrnug6'),
-(5, 'Raneem Al Zarif', '$2y$10$A17EwZDSAiOu50PuL.EnT.EcrHwI77Pz6ijKC97s1kAs3SZbfuuri'),
 (6, 'sara', '$2y$10$bIVTyKfDic1FccnAZvkiSOIU/g3UB0PPbd8L/fsy2AiviRr1rXAbC'),
 (7, 'rima', '$2y$10$LePmzjg6qn/3COK3hNjNPe52Q/KtFUHazHjm2.Nx6OPmsyu582hQ.'),
-(8, 'rima', '$2y$10$n1mwukdVqjDjtvsUR2wNNOqdHpk1Xz4QMILjKmdCfDL9Mu224LYZq'),
 (9, 'sima', '$2y$10$VG4wWeVOfNIWPvqQNgpiuuwWd/FurgHh/65XdKZGYiyC.Pt/YHbVm'),
-(10, 'sima', '$2y$10$sEWXn8ODe7Z5KCVrKg8I8OxeylxazzVHi2rtOvr0zsFVkXyaTrtXm'),
-(11, 'cyrine', '$2y$10$KyRPMsH2iU.40EZYnHG/0eSTpwwwFByVoO8CCBFy.gAwy4HbamBme');
+(11, 'cyrine', '$2y$10$KyRPMsH2iU.40EZYnHG/0eSTpwwwFByVoO8CCBFy.gAwy4HbamBme'),
+(12, 'reem', '$2y$10$mpJrCsDIZmrIcsu1KtWe1.kARyBge/qRBMSuHQj8RFTCMz3tZdsw6'),
+(15, 'tania', '$2y$10$BLo13oY.glMrZFzwWWXnE.kSIeLhhkdLJFA3/YHDtu45ki3hPz12m'),
+(17, 'rana', '$2y$10$.tpNbx8v9T8ACExWqQ/c.e01Jjtwn.LtFHvm5Qp7ZHhbxS77EHns2');
 
 --
 -- Indexes for dumped tables
@@ -94,7 +92,14 @@ ALTER TABLE `posts`
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id` (`id`),
+  ADD UNIQUE KEY `username_6` (`username`),
+  ADD KEY `username` (`username`),
+  ADD KEY `username_2` (`username`),
+  ADD KEY `username_3` (`username`),
+  ADD KEY `username_4` (`username`),
+  ADD KEY `username_5` (`username`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -104,13 +109,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
