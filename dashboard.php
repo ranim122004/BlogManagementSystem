@@ -3,9 +3,13 @@
 require_once 'session.php';
 require_once 'connection.php';
 
-// Step 2: Fetch all blog posts by the logged-in user
+// Step 2: Fetch all blog posts by the logged-in user with category names
 $user_id = $_SESSION['user_id'];
-$stmt = $conn->prepare("SELECT id, title, content, created_at FROM posts WHERE author_id = ? ORDER BY created_at DESC");
+$stmt = $conn->prepare("SELECT posts.id, posts.title, posts.content, posts.created_at, categories.name AS category_name
+                        FROM posts
+                        LEFT JOIN categories ON posts.category_id = categories.id
+                        WHERE posts.author_id = ?
+                        ORDER BY posts.created_at DESC");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -41,6 +45,13 @@ $result = $stmt->get_result();
         .btn-sm {
             font-size: 0.85rem;
         }
+        .category-badge {
+            font-size: 0.75rem;
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 4px 8px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -61,7 +72,10 @@ $result = $stmt->get_result();
         <?php while ($row = $result->fetch_assoc()): ?>
             <div class="post-card">
                 <h5 class="mb-1"><?php echo htmlspecialchars($row['title']); ?></h5>
-                <small class="text-muted">Posted on: <?php echo $row['created_at']; ?></small>
+                <small class="text-muted">Posted on: <?php echo $row['created_at']; ?></small><br>
+                <?php if (!empty($row['category_name'])): ?>
+                    <span class="category-badge mt-1 d-inline-block">Category: <?php echo htmlspecialchars($row['category_name']); ?></span>
+                <?php endif; ?>
                 <p class="mt-2"><?php echo htmlspecialchars(substr($row['content'], 0, 120)); ?>...</p>
                 <a href="edit_post.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm">Edit</a>
                 <a href="delete_post.php?id=<?php echo $row['id']; ?>" class="btn btn-danger btn-sm">Delete</a>

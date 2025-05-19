@@ -1,34 +1,38 @@
 <?php
-// Step 1: Start the session and connect to the db
 session_start();
 require_once 'connection.php';
 
 $message = '';
 
-// Step 2: Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
+    $username = trim($_POST['username']);
     $password = $_POST['password'];
 
-    // Step 3: Fetch user by username
-    $stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?");
+    // Fetch user with admin and active status
+    $stmt = $conn->prepare("SELECT id, password, is_admin, is_active FROM users WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $stmt->store_result();
 
-    // Step 4: Check if user exists
     if ($stmt->num_rows > 0) {
-        $stmt->bind_result($user_id, $hashed_password);
+        $stmt->bind_result($user_id, $hashed_password, $is_admin, $is_active);
         $stmt->fetch();
 
-        // Step 5: Verify password and login
-        if (password_verify($password, $hashed_password)) {
+        if (!password_verify($password, $hashed_password)) {
+            $message = "<div class='alert alert-danger text-center'>Invalid password.</div>";
+        } elseif ($is_active != 1) {
+            $message = "<div class='alert alert-warning text-center'>Your account is deactivated. Please contact support.</div>";
+        } else {
             $_SESSION['user_id'] = $user_id;
             $_SESSION['username'] = $username;
-            header("Location: dashboard.php");
+            $_SESSION['is_admin'] = $is_admin;
+
+            if ($is_admin) {
+                header("Location: admin_dashboard.php");
+            } else {
+                header("Location: dashboard.php");
+            }
             exit;
-        } else {
-            $message = "<div class='alert alert-danger text-center'>Invalid password.</div>";
         }
     } else {
         $message = "<div class='alert alert-warning text-center'>No user found with that username.</div>";
@@ -45,7 +49,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
     <style>
         body {
             background: linear-gradient(to right, #f9f9f9, #e0f7fa);
@@ -94,6 +97,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+
+                <div class="text-center mt-3">
+                    <a href="forgot_password.php" class="text-decoration-none">Forgot your password?</a>
                 </div>
             </form>
 
