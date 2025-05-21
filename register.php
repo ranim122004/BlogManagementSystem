@@ -11,8 +11,8 @@ $message = '';
 // Step 4: Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Step 5: Sanitize and receive input
-    $username = trim($_POST['username']);
-    $password = $_POST['password'];
+    $username = htmlspecialchars(trim($_POST['username']));
+    $password = trim($_POST['password']);
 
     // Step 6: Define password strength pattern
     $passwordPattern = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/';

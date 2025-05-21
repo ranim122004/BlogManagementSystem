@@ -6,6 +6,33 @@ require_once 'check_admin.php';
 // Fetch users and posts
 $users = $conn->query("SELECT id, username, email, is_admin, is_active FROM users");
 $posts = $conn->query("SELECT id, title, created_at FROM posts");
+
+// Category logic
+$message = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_category'])) {
+    $newCategory = trim($_POST['new_category']);
+    if (!empty($newCategory)) {
+        $stmt = $conn->prepare("INSERT INTO categories (name) VALUES (?)");
+        $stmt->bind_param("s", $newCategory);
+        $stmt->execute();
+        $stmt->close();
+        $message = "<div class='alert alert-success text-center'>Category added successfully.</div>";
+    } else {
+        $message = "<div class='alert alert-warning text-center'>Category name cannot be empty.</div>";
+    }
+}
+
+if (isset($_GET['delete_cat'])) {
+    $cat_id = (int)$_GET['delete_cat'];
+    $stmt = $conn->prepare("DELETE FROM categories WHERE id = ?");
+    $stmt->bind_param("i", $cat_id);
+    $stmt->execute();
+    $stmt->close();
+    header("Location: admin_dashboard.php");
+    exit;
+}
+
+$categories = $conn->query("SELECT * FROM categories ORDER BY name ASC");
 ?>
 
 <!DOCTYPE html>
@@ -57,6 +84,9 @@ $posts = $conn->query("SELECT id, title, created_at FROM posts");
         </a>
     </div>
 
+    <?php if (!empty($message)) echo $message; ?>
+
+    <!-- Users -->
     <div class="card mb-5 p-4">
         <h4 class="section-title mb-3"><i class="fas fa-users text-secondary me-2"></i>All Users</h4>
         <div class="table-responsive">
@@ -104,7 +134,8 @@ $posts = $conn->query("SELECT id, title, created_at FROM posts");
         </div>
     </div>
 
-    <div class="card p-4">
+    <!-- Posts -->
+    <div class="card mb-5 p-4">
         <h4 class="section-title mb-3"><i class="fas fa-blog text-secondary me-2"></i>All Posts</h4>
         <div class="table-responsive">
             <table class="table table-hover align-middle">
@@ -132,6 +163,39 @@ $posts = $conn->query("SELECT id, title, created_at FROM posts");
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="card p-4">
+        <h4 class="section-title mb-3"><i class="fas fa-tags text-secondary me-2"></i>Manage Categories</h4>
+        
+        <form action="" method="post" class="mb-4 d-flex gap-2">
+            <input type="text" name="new_category" class="form-control" placeholder="New category name" required>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Category</button>
+        </form>
+
+        <table class="table table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($cat = $categories->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= $cat['id'] ?></td>
+                        <td><?= htmlspecialchars($cat['name']) ?></td>
+                        <td>
+                            <a href="?delete_cat=<?= $cat['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this category?');">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
     </div>
 
 </body>

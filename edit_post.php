@@ -13,6 +13,12 @@ $result = $stmt->get_result();
 $post = $result->fetch_assoc();
 $stmt->close();
 
+// ✅ Ensure post exists and belongs to the logged-in user
+if (!$post || $post['author_id'] !== $_SESSION['user_id']) {
+    header("Location: dashboard.php?error=unauthorized");
+    exit;
+}
+
 // Fetch categories
 $category_result = $conn->query("SELECT id, name FROM categories");
 
